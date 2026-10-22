@@ -137,7 +137,7 @@ def job_companies_house(p):
     if not os.getenv("COMPANIES_HOUSE_API_KEY"):
         raise RuntimeError("COMPANIES_HOUSE_API_KEY is not set in the environment")
     with SessionLocal() as db:
-        n = companies_house.collect(db, n_companies=int(p.get("n", 200)))
+        n = companies_house.collect(db, n_companies=int(p.get("n", 200)), log=log)
     log(f"imported {n} UK directors")
 
 

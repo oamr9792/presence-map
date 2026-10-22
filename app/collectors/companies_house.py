@@ -33,7 +33,7 @@ def _person_name(officer: dict) -> str:
 
 
 def collect(db: Session, n_companies: int = 200, incorporated_within_days: int = 4 * 365,
-            seed: int | None = None) -> int:
+            seed: int | None = None, log=lambda m: None) -> int:
     """Returns number of subjects created."""
     rng = random.Random(seed)
     created = 0
@@ -45,7 +45,10 @@ def collect(db: Session, n_companies: int = 200, incorporated_within_days: int =
             "size": n_companies, "start_index": start})
         r.raise_for_status()
         items = r.json().get("items", [])
-        for comp in items:
+        log(f"{len(items)} companies incorporated since {since}; fetching officers")
+        for ci, comp in enumerate(items, 1):
+            if ci % 20 == 0:
+                log(f"  {ci}/{len(items)} companies, {created} directors so far")
             if any(s in SIC_SKIP for s in comp.get("sic_codes", [])):
                 continue
             num = comp["company_number"]
