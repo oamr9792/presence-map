@@ -41,6 +41,7 @@ async function drawBoard() {
   inputs = inputs.filter(i => used.has(i.key)); targets = targets.filter(t => used.has(t.key));
 
   const box = $("#board"); box.innerHTML = "";
+  if (!edges.length) { box.innerHTML = `<p class="hint" style="padding:20px">No comparisons meet the filters yet. ${g.targets.some(t => t.presence_rate > 0) ? "Checks exist (see Targets), but there are not yet enough people both with and without each input to draw lines. Run more checks." : "No checks have been analysed. Run checks, then Analyse."}</p>`; return; }
   const W = box.clientWidth, H = box.clientHeight;
   const svg = d3.select(box).append("svg").attr("viewBox", [0, 0, W, H]);
   const xIn = W * 0.18, xOut = W * 0.72;

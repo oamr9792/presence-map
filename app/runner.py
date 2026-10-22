@@ -166,7 +166,7 @@ def job_check(p):
 def job_analyse(p):
     from .analysis.compute import run
     with SessionLocal() as db:
-        log(str(run(db)))
+        log(str(run(db, log=log)))
 
 
 def job_seed_sample(p):

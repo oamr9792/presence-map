@@ -34,7 +34,7 @@ def subject_inputs(db: Session) -> dict[int, dict[str, Input]]:
     return out
 
 
-def run(db: Session, min_n: int = 5) -> dict:
+def run(db: Session, min_n: int = 3, log=lambda m: None) -> dict:
     pres = latest_presence(db)
     inputs = subject_inputs(db)
     fs = first_seen(db)
@@ -43,6 +43,8 @@ def run(db: Session, min_n: int = 5) -> dict:
     trivial = {(t.also_input, t.key) for t in tgt_rows if t.also_input}  # a crunchbase page "causing" crunchbase
     input_keys = [i.key for i in db.query(InputType)]
     subjects = [s.id for s in db.query(Subject) if s.id in pres]   # only checked subjects
+    log(f"{len(subjects)} subjects have been checked; {len(input_keys)} input kinds, {len(targets)} targets")
+    skipped = []
 
     db.query(Edge).delete()
     n_edges = 0
@@ -51,6 +53,7 @@ def run(db: Session, min_n: int = 5) -> dict:
         without = [s for s in subjects if ik in inputs[s] and not inputs[s][ik].present]
         # subjects where the input was never recorded are excluded: unknown, not absent
         if len(with_) < min_n or len(without) < min_n:
+            skipped.append(f"{ik} (with={len(with_)}, without={len(without)})")
             continue
         for tk in targets:
             if (ik, tk) in trivial:
@@ -68,6 +71,9 @@ def run(db: Session, min_n: int = 5) -> dict:
                         median_lag_days=median(lags) if lags else None, n_lag=len(lags)))
             n_edges += 1
 
+    if skipped:
+        log("inputs with too few subjects on one side to compare (need " + str(min_n) + " each): " + ", ".join(skipped))
+    log(f"{n_edges} input->target comparisons computed")
     # target stats from bare-name snapshots
     db.query(TargetStat).delete()
     tmap = {t.domain: t.key for t in db.query(Target)}
@@ -97,5 +103,8 @@ def run(db: Session, min_n: int = 5) -> dict:
                           page_one_rate=(sum(1 for p in ps if p <= 10) / n_present) if n_present else 0,
                           page_two_rate=(sum(1 for p in ps if 10 < p <= 20) / n_present) if n_present else 0,
                           median_position=median(ps) if ps else None))
+    present_counts = {tk: sum(1 for s in subjects if pres[s].get(tk) and pres[s][tk].present) for tk in targets}
+    top = sorted(present_counts.items(), key=lambda kv: -kv[1])[:8]
+    log("most common pages: " + ", ".join(f"{k} {v}" for k, v in top if v))
     db.commit()
     return {"subjects": len(subjects), "edges": n_edges, "targets": len(targets)}
