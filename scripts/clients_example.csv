@@ -1,0 +1,2 @@
+full_name,country,company_name,company_domain,title,is_client,consented,linkedin,team_page,team_page_date,crunchbase_page,crunchbase_page_date
+Example Client,US,Example Holdings LLC,exampleholdings.com,Managing Partner,1,1,https://www.linkedin.com/in/example,1,2026-10-01,,

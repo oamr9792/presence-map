@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presence Map</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">Presence map</div>
+  <nav>
+    <button data-view="board" class="active">Board</button>
+    <button data-view="plan">Plan</button>
+    <button data-view="table">Trigger table</button>
+    <button data-view="targets">Targets</button>
+    <button data-view="subjects">Subjects</button>
+  </nav>
+  <div class="meta" id="meta"></div>
+</header>
+
+<main>
+  <section id="view-board" class="view active">
+    <div class="toolbar">
+      <label>Min subjects <input type="number" id="board-min-n" value="10" min="1" style="width:4em"></label>
+      <label>Min lift <input type="number" id="board-min-lift" value="1.5" step="0.1" min="1" style="width:4em"></label>
+      <label>Category
+        <select id="board-cat"><option value="">all</option></select></label>
+      <label><input type="checkbox" id="board-controllable" checked> controllable inputs only</label>
+      <span class="hint">Left: things you can do. Right: pages that appear. Line width = how much more likely the page is when the input exists. Circle size = how often that page reaches Google page one. Click a node to isolate it.</span>
+    </div>
+    <div id="board"></div>
+    <div id="board-detail" class="detail"></div>
+  </section>
+
+  <section id="view-plan" class="view">
+    <div class="split">
+      <div class="pane">
+        <h2>What the person has now</h2>
+        <p class="hint">Tick what already exists. Leave everything unticked for a client with nothing.</p>
+        <div id="plan-inputs" class="checks"></div>
+        <h3>Pages already present</h3>
+        <div id="plan-pages" class="checks small"></div>
+        <label>Country <select id="plan-country"><option value="">any</option><option value="GB">GB</option><option value="US">US</option></select></label>
+        <label>Max noise <select id="plan-noise">
+          <option value="1">1 quiet only</option><option value="2">2</option>
+          <option value="3" selected>3 no press</option><option value="4">4</option><option value="5">5 anything</option>
+        </select></label>
+        <button id="plan-run" class="primary">Build plan</button>
+      </div>
+      <div class="pane" id="plan-out"><p class="hint">The plan appears here: steps in order, with the pages each step is expected to produce, how likely, and how long it takes.</p></div>
+    </div>
+  </section>
+
+  <section id="view-table" class="view">
+    <div class="toolbar"><input id="table-filter" placeholder="filter input or target"><span class="hint">P(page | input) vs P(page | no input), from the latest check per subject. Lag from subjects with a dated input.</span></div>
+    <table id="table"><thead><tr>
+      <th>Input</th><th>Target</th><th>n with</th><th>n without</th><th>P with</th><th>P without</th><th>Lift</th><th>Lag (days)</th><th>n lag</th>
+    </tr></thead><tbody></tbody></table>
+  </section>
+
+  <section id="view-targets" class="view">
+    <div class="toolbar"><span class="hint">How often each site has a page for a checked subject, and how often that page reaches page one or two for the bare name.</span></div>
+    <table id="targets"><thead><tr>
+      <th>Target</th><th>Category</th><th>Region</th><th>Presence rate</th><th>Page-one rate</th><th>Page-two rate</th><th>Median position</th>
+    </tr></thead><tbody></tbody></table>
+  </section>
+
+  <section id="view-subjects" class="view">
+    <div class="toolbar">
+      <select id="subj-cohort"><option value="">all cohorts</option></select>
+      <input id="subj-q" placeholder="search name">
+      <span id="subj-count" class="hint"></span>
+    </div>
+    <div class="split">
+      <table id="subjects"><thead><tr><th>Name</th><th>Company</th><th>C</th><th>Cohort</th><th>Inputs</th><th>Pages</th><th>Checked</th></tr></thead><tbody></tbody></table>
+      <div class="pane" id="subject-detail"><p class="hint">Click a subject.</p></div>
+    </div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

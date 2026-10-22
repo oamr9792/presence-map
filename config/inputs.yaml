@@ -1,0 +1,74 @@
+# Things that can exist or be done for a person. controllable = we can do it for a client.
+# noise: 1 quiet, 5 loud (press). The planner prefers low noise.
+- key: ch_appointment
+  label: Companies House appointment
+  controllable: true
+  noise: 1
+  region: GB
+  description: Director or PSC appointment on the UK register.
+- key: us_officer_filing
+  label: US state officer filing
+  controllable: true
+  noise: 1
+  region: US
+  description: Officer or director named in a Secretary of State filing.
+- key: linkedin
+  label: LinkedIn profile
+  controllable: true
+  noise: 1
+  description: Profile with company and title matching the canonical identity.
+- key: team_page
+  label: Entity site team page
+  controllable: true
+  noise: 1
+  description: Name, title, company, email in crawlable HTML with Person schema.
+- key: company_domain
+  label: Company website exists
+  controllable: true
+  noise: 1
+  description: The entity has a live domain the person is associated with.
+- key: crunchbase_page
+  label: Crunchbase person page
+  controllable: true
+  noise: 1
+  description: Self-submitted via a free account.
+- key: theorg_page
+  label: The Org position
+  controllable: true
+  noise: 1
+  description: Position in a submitted org chart.
+- key: duns
+  label: D-U-N-S registration
+  controllable: true
+  noise: 1
+  description: Entity registered with D&B naming the person as principal.
+- key: zoominfo_lite
+  label: ZoomInfo Lite connected
+  controllable: true
+  noise: 1
+  description: Campaign inbox connected to ZoomInfo Lite in the person's name.
+- key: signature_outreach
+  label: Signature outreach
+  controllable: true
+  noise: 2
+  description: Outbound mail with a fixed signature to likely contributory-network members.
+- key: press_release
+  label: Wire press release
+  controllable: true
+  noise: 4
+  description: Dated release naming the person and title.
+- key: byline
+  label: Bylined article
+  controllable: true
+  noise: 3
+  description: Article under the person's name on a third-party site.
+- key: news_mention
+  label: News mention
+  controllable: false
+  noise: 5
+  description: Named in press. Observed, not planned.
+- key: conference
+  label: Conference or event listing
+  controllable: true
+  noise: 2
+  description: Speaker or attendee page naming the person.

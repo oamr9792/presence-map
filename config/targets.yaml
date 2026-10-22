@@ -1,0 +1,277 @@
+# Sites that may publish a page about a person.
+# serp_query: template for the Google check. {name} {company} {domain} available.
+# url_pattern: regex the result URL must match to count as a person page (not a company page).
+# also_input: if a page here is itself an input to other sites, the input key.
+
+# --- B2B contact databases ---
+- key: zoominfo
+  label: ZoomInfo
+  domain: zoominfo.com
+  category: b2b
+  serp_query: '"{name}" site:zoominfo.com/p/'
+  url_pattern: 'zoominfo\.com/p/'
+  region: global
+- key: rocketreach
+  label: RocketReach
+  domain: rocketreach.co
+  category: b2b
+  serp_query: '"{name}" site:rocketreach.co'
+  url_pattern: 'rocketreach\.co/[a-z0-9-]+-email_'
+  region: global
+- key: apollo
+  label: Apollo
+  domain: apollo.io
+  category: b2b
+  serp_query: '"{name}" site:apollo.io'
+  url_pattern: 'apollo\.io/people/'
+  region: global
+- key: signalhire
+  label: SignalHire
+  domain: signalhire.com
+  category: b2b
+  serp_query: '"{name}" site:signalhire.com'
+  url_pattern: 'signalhire\.com/profiles/'
+  region: global
+- key: contactout
+  label: ContactOut
+  domain: contactout.com
+  category: b2b
+  serp_query: '"{name}" site:contactout.com'
+  url_pattern: 'contactout\.com/'
+  region: global
+- key: datanyze
+  label: Datanyze
+  domain: datanyze.com
+  category: b2b
+  serp_query: '"{name}" site:datanyze.com'
+  url_pattern: 'datanyze\.com/people/'
+  region: global
+- key: wiza
+  label: Wiza
+  domain: wiza.co
+  category: b2b
+  serp_query: '"{name}" site:wiza.co'
+  url_pattern: 'wiza\.co/d/[^/]+/[^/]+/[^/]+'
+  region: global
+- key: lusha
+  label: Lusha
+  domain: lusha.com
+  category: b2b
+  serp_query: '"{name}" site:lusha.com'
+  url_pattern: 'lusha\.com/'
+  region: global
+
+# --- Registries and filing-driven directories ---
+- key: companies_house
+  label: Companies House
+  domain: find-and-update.company-information.service.gov.uk
+  category: registry
+  serp_query: '"{name}" site:find-and-update.company-information.service.gov.uk/officers'
+  url_pattern: 'service\.gov\.uk/officers/'
+  also_input: ch_appointment
+  region: UK
+- key: opencorporates
+  label: OpenCorporates
+  domain: opencorporates.com
+  category: registry
+  serp_query: '"{name}" site:opencorporates.com/officers'
+  url_pattern: 'opencorporates\.com/officers/'
+  region: global
+- key: endole
+  label: Endole
+  domain: endole.co.uk
+  category: registry
+  serp_query: '"{name}" site:endole.co.uk'
+  url_pattern: 'endole\.co\.uk/(director|people)/'
+  region: UK
+- key: companycheck
+  label: Company Check
+  domain: companycheck.co.uk
+  category: registry
+  serp_query: '"{name}" site:companycheck.co.uk/director'
+  url_pattern: 'companycheck\.co\.uk/director/'
+  region: UK
+- key: northdata
+  label: North Data
+  domain: northdata.com
+  category: registry
+  serp_query: '"{name}" site:northdata.com'
+  url_pattern: 'northdata\.com/'
+  region: EU
+- key: corporationwiki
+  label: Corporation Wiki
+  domain: corporationwiki.com
+  category: registry
+  serp_query: '"{name}" site:corporationwiki.com'
+  url_pattern: 'corporationwiki\.com/p/'
+  region: US
+- key: bizapedia
+  label: Bizapedia
+  domain: bizapedia.com
+  category: registry
+  serp_query: '"{name}" site:bizapedia.com'
+  url_pattern: 'bizapedia\.com/'
+  region: US
+- key: dnb
+  label: Dun & Bradstreet
+  domain: dnb.com
+  category: directory
+  serp_query: '"{name}" site:dnb.com/business-directory'
+  url_pattern: 'dnb\.com/business-directory/'
+  region: global
+- key: bloomberg
+  label: Bloomberg
+  domain: bloomberg.com
+  category: directory
+  serp_query: '"{name}" site:bloomberg.com/profile'
+  url_pattern: 'bloomberg\.com/profile/person/'
+  region: global
+- key: marketscreener
+  label: MarketScreener
+  domain: marketscreener.com
+  category: directory
+  serp_query: '"{name}" site:marketscreener.com/insider'
+  url_pattern: 'marketscreener\.com/insider/'
+  region: global
+- key: manta
+  label: Manta
+  domain: manta.com
+  category: directory
+  serp_query: '"{name}" site:manta.com'
+  url_pattern: 'manta\.com/c/'
+  region: US
+- key: buzzfile
+  label: Buzzfile
+  domain: buzzfile.com
+  category: directory
+  serp_query: '"{name}" site:buzzfile.com'
+  url_pattern: 'buzzfile\.com/business/'
+  region: US
+- key: owler
+  label: Owler
+  domain: owler.com
+  category: directory
+  serp_query: '"{name}" site:owler.com'
+  url_pattern: 'owler\.com/company/'
+  region: global
+- key: kompass
+  label: Kompass
+  domain: kompass.com
+  category: directory
+  serp_query: '"{name}" site:kompass.com'
+  url_pattern: 'kompass\.com/'
+  region: global
+
+# --- Investor, startup and org-chart directories ---
+- key: crunchbase
+  label: Crunchbase
+  domain: crunchbase.com
+  category: investor
+  serp_query: '"{name}" site:crunchbase.com/person'
+  url_pattern: 'crunchbase\.com/person/'
+  also_input: crunchbase_page
+  region: global
+- key: pitchbook
+  label: PitchBook
+  domain: pitchbook.com
+  category: investor
+  serp_query: '"{name}" site:pitchbook.com/profiles/person'
+  url_pattern: 'pitchbook\.com/profiles/person/'
+  region: global
+- key: cbinsights
+  label: CB Insights
+  domain: cbinsights.com
+  category: investor
+  serp_query: '"{name}" site:cbinsights.com'
+  url_pattern: 'cbinsights\.com/'
+  region: global
+- key: dealroom
+  label: Dealroom
+  domain: dealroom.co
+  category: investor
+  serp_query: '"{name}" site:dealroom.co'
+  url_pattern: 'dealroom\.co/'
+  region: EU
+- key: tracxn
+  label: Tracxn
+  domain: tracxn.com
+  category: investor
+  serp_query: '"{name}" site:tracxn.com'
+  url_pattern: 'tracxn\.com/'
+  region: global
+- key: theorg
+  label: The Org
+  domain: theorg.com
+  category: investor
+  serp_query: '"{name}" site:theorg.com'
+  url_pattern: 'theorg\.com/org/[^/]+/org-chart/'
+  also_input: theorg_page
+  region: global
+- key: wellfound
+  label: Wellfound
+  domain: wellfound.com
+  category: investor
+  serp_query: '"{name}" site:wellfound.com'
+  url_pattern: 'wellfound\.com/(u|p)/'
+  region: global
+- key: f6s
+  label: F6S
+  domain: f6s.com
+  category: investor
+  serp_query: '"{name}" site:f6s.com'
+  url_pattern: 'f6s\.com/member/'
+  region: global
+- key: prabook
+  label: Prabook
+  domain: prabook.com
+  category: investor
+  serp_query: '"{name}" site:prabook.com'
+  url_pattern: 'prabook\.com/web/'
+  region: global
+- key: muckrack
+  label: Muck Rack
+  domain: muckrack.com
+  category: investor
+  serp_query: '"{name}" site:muckrack.com'
+  url_pattern: 'muckrack\.com/[a-z0-9-]+$'
+  region: global
+- key: craft
+  label: Craft
+  domain: craft.co
+  category: investor
+  serp_query: '"{name}" site:craft.co'
+  url_pattern: 'craft\.co/'
+  region: global
+
+# --- Social (inputs we also check as targets) ---
+- key: linkedin
+  label: LinkedIn
+  domain: linkedin.com
+  category: social
+  serp_query: '"{name}" site:linkedin.com/in'
+  url_pattern: 'linkedin\.com/in/'
+  also_input: linkedin
+  region: global
+
+# --- Consumer people-search (tracked as suppression targets, not fed) ---
+- key: radaris
+  label: Radaris
+  domain: radaris.com
+  category: people_search
+  serp_query: '"{name}" site:radaris.com'
+  url_pattern: 'radaris\.com/p/'
+  region: US
+- key: spokeo
+  label: Spokeo
+  domain: spokeo.com
+  category: people_search
+  serp_query: '"{name}" site:spokeo.com'
+  url_pattern: 'spokeo\.com/'
+  region: US
+- key: whitepages
+  label: Whitepages
+  domain: whitepages.com
+  category: people_search
+  serp_query: '"{name}" site:whitepages.com'
+  url_pattern: 'whitepages\.com/name/'
+  region: US

@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: presence-map
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: presence-map-db
+          property: connectionString
+      - key: DATAFORSEO_LOGIN
+        sync: false
+      - key: DATAFORSEO_PASSWORD
+        sync: false
+      - key: COMPANIES_HOUSE_API_KEY
+        sync: false
+      - key: OPENCORPORATES_API_TOKEN
+        sync: false
+  - type: cron
+    name: presence-map-check
+    runtime: python
+    schedule: "0 3 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.jobs check --limit 100 --recheck-days 30 && python -m app.jobs analyse
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: presence-map-db
+          property: connectionString
+      - key: DATAFORSEO_LOGIN
+        sync: false
+      - key: DATAFORSEO_PASSWORD
+        sync: false
+databases:
+  - name: presence-map-db
+    plan: basic-256mb
