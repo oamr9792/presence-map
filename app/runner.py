@@ -51,6 +51,34 @@ def _run(name, params):
 
 # ---------------- jobs ----------------
 
+def _find_remote(s, preferred: str, depth: int = 4) -> str:
+    """Return a path to the corporate data file. Try the preferred path, then walk the tree
+    (logging it) looking for cordata*.zip, case-insensitively."""
+    try:
+        s.stat(preferred); return preferred
+    except IOError:
+        log(f"{preferred} not found; listing server")
+    found = []
+    def walk(path, d):
+        try:
+            entries = s.listdir_attr(path)
+        except IOError as e:
+            log(f"  cannot list {path}: {e}"); return
+        for a in entries:
+            full = (path.rstrip("/") + "/" + a.filename) if path != "/" else "/" + a.filename
+            isdir = bool(a.st_mode & 0o40000)
+            log(f"  {'[d]' if isdir else '   '} {full}{'' if isdir else f'  {a.st_size/1e6:.1f} MB'}")
+            if isdir and d < depth and a.filename.lower() not in ("flr", "fic", "gen", "trademarks", "tm"):
+                walk(full, d + 1)
+            elif not isdir and a.filename.lower().startswith("cordata") and a.filename.lower().endswith(".zip"):
+                found.append(full)
+    walk("/", 0)
+    if not found:
+        raise FileNotFoundError("no cordata*.zip found on the server; see the listing above")
+    log(f"using {found[0]}")
+    return found[0]
+
+
 def job_florida_fetch(p):
     """Download Florida's quarterly cordata.zip over SFTP and import a random sample."""
     import paramiko
@@ -65,6 +93,7 @@ def job_florida_fetch(p):
         log(f"connecting to {host}")
         t = paramiko.Transport((host, 22)); t.connect(username=user, password=pw)
         s = paramiko.SFTPClient.from_transport(t)
+        remote = _find_remote(s, remote)
         size = s.stat(remote).st_size
         log(f"downloading {remote} ({size/1e6:.0f} MB)")
         done = [0]
