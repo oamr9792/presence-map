@@ -12,8 +12,9 @@ not from vendor documentation, and they are recomputed every time new checks lan
 ## How it works
 
 1. **Collect** a cohort of subjects whose inputs are known: UK directors from
-   Companies House, US officers via OpenCorporates, clients and consenting
-   controlled-study subjects from CSV.
+   Companies House (free API), US officers from Florida's free bulk register
+   files, clients and consenting controlled-study subjects from CSV.
+   OpenCorporates is wired as an optional paid source for other US states.
 2. **Check** each subject against ~40 target sites (`config/targets.yaml`)
    through Google SERP queries (DataForSEO). Records whether a page exists, its
    URL, richness, and its position for the bare-name query. Also discovers
@@ -44,7 +45,8 @@ Then open http://localhost:8000.
 ## Real data
 
     python -m app.jobs collect-ch 200          # Companies House, needs COMPANIES_HOUSE_API_KEY
-    python -m app.jobs collect-oc us_fl 100    # OpenCorporates, needs OPENCORPORATES_API_TOKEN
+    python -m app.jobs collect-fl cordata.zip 500   # Florida officers from the free Sunbiz bulk file
+    python -m app.jobs collect-oc us_fl 100    # optional: OpenCorporates (paid API)
     python -m app.jobs import-csv clients.csv client
     python -m app.jobs check --limit 50        # DataForSEO; ~40 SERP calls per subject
     python -m app.jobs analyse
@@ -56,6 +58,17 @@ absent; much cheaper, slightly less sensitive.
 
 Delete the sample cohort once real data is in:
 `DELETE FROM subjects WHERE cohort='sample'` (checks and inputs cascade).
+
+### Florida bulk file
+
+Florida publishes its register, officers included, at sftp.floridados.gov
+(user `Public`, password `PubAccess1845!`, both published on
+dos.fl.gov/sunbiz/other-services/data-downloads). The browser can open the host
+directly. Quarterly: `doc/quarterly/cor/cordata.zip` (all active records, ten
+files inside). Daily: `doc/daily/cor/`. Download, then:
+
+    python -m app.jobs collect-fl cordata.zip --probe   # prints three parsed records; check names and dates read correctly
+    python -m app.jobs collect-fl cordata.zip 500       # random 500 officers filed in the last year
 
 ## Controlled subjects
 

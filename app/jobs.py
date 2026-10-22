@@ -2,7 +2,8 @@
 
   init                                 create tables, seed targets/inputs
   collect-ch   [n_companies]           Companies House cohort
-  collect-oc   [jurisdiction] [n]      OpenCorporates US cohort (us_fl, us_ny...)
+  collect-fl   <file> [n] [--probe]    Florida officers from a Sunbiz bulk file (free)
+  collect-oc   [jurisdiction] [n]      OpenCorporates (paid API; optional)
   import-csv   <path> <cohort>         any cohort from CSV
   check        [--cohort X] [--limit N] [--recheck-days D] [--no-per-target]
                                        presence checks for subjects due
@@ -130,6 +131,7 @@ def main(argv=None):
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init")
     a = sub.add_parser("collect-ch"); a.add_argument("n", type=int, nargs="?", default=200)
+    a = sub.add_parser("collect-fl"); a.add_argument("path"); a.add_argument("n", type=int, nargs="?", default=500); a.add_argument("--probe", action="store_true")
     a = sub.add_parser("collect-oc"); a.add_argument("jurisdiction", nargs="?", default="us_fl"); a.add_argument("n", type=int, nargs="?", default=100)
     a = sub.add_parser("import-csv"); a.add_argument("path"); a.add_argument("cohort")
     a = sub.add_parser("check"); a.add_argument("--cohort"); a.add_argument("--limit", type=int, default=50)
@@ -146,6 +148,13 @@ def main(argv=None):
         from .collectors import companies_house
         with SessionLocal() as db:
             print(companies_house.collect(db, n_companies=args.n), "subjects")
+    elif args.cmd == "collect-fl":
+        from .collectors import florida
+        if args.probe:
+            florida.probe(args.path)
+        else:
+            with SessionLocal() as db:
+                print(florida.collect(db, args.path, n_subjects=args.n), "subjects")
     elif args.cmd == "collect-oc":
         from .collectors import opencorporates
         with SessionLocal() as db:
