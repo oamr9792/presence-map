@@ -173,4 +173,28 @@ async function openSubject(id) {
   renderPlan(s.plan, $("#subj-plan"));
 }
 
+
+// ---------- jobs ----------
+async function pollJobs() {
+  if (!$("#view-jobs").classList.contains("active")) return;
+  const st = await api("/api/jobs");
+  $("#env-status").innerHTML = Object.entries(st.env).map(([k, v]) => `<span class="tag ${v ? "on" : "off"}">${k}</span>`).join(" ");
+  $("#job-running").textContent = st.running ? `Running: ${st.running} (since ${st.started.slice(11, 19)} UTC)` : "Idle";
+  const pre = $("#job-log"); const atBottom = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 20;
+  pre.textContent = st.log.join("\n"); if (atBottom) pre.scrollTop = pre.scrollHeight;
+  $("#job-history").innerHTML = st.history.slice().reverse().map(h => `<div class="${h.ok ? "ok" : "bad"}">${h.at.slice(0, 16).replace("T", " ")} ${h.job} ${h.ok ? "ok" : "failed: " + h.error}</div>`).join("");
+  $$("#view-jobs button[data-job]").forEach(b => b.disabled = !!st.running);
+}
+$$("#view-jobs button[data-job]").forEach(b => b.onclick = async () => {
+  const job = b.dataset.job; let params = {};
+  if (job === "florida_fetch") params = { n: +$("#fl-n").value };
+  if (job === "companies_house") params = { n: +$("#ch-n").value };
+  if (job === "check") params = { limit: +$("#ck-limit").value, cheap: $("#ck-cheap").checked };
+  if (job === "delete_cohort") { params = { cohort: b.dataset.cohort }; if (!confirm(`Delete cohort ${b.dataset.cohort}?`)) return; }
+  const r = await fetch(`/api/jobs/${job}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) });
+  if (!r.ok) alert((await r.json()).detail);
+  pollJobs();
+});
+setInterval(pollJobs, 2000);
+
 init();

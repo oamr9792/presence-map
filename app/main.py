@@ -1,4 +1,5 @@
 """FastAPI app. Serves JSON for the UI and the static UI itself."""
+import os
 from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -9,6 +10,8 @@ from .db import init_db, get_session
 from .models import Subject, Target, InputType, Input, Check, Edge, TargetStat
 from .analysis.compute import latest_presence
 from .analysis.planner import plan as make_plan
+from . import runner
+from fastapi import Body
 
 app = FastAPI(title="presence map")
 WEB = Path(__file__).resolve().parent.parent / "web"
@@ -115,6 +118,22 @@ def simulate(inputs: str = Query("", description="comma-separated input keys the
         return make_plan(db, tmp.id, max_noise=max_noise)
     finally:
         db.rollback()
+
+
+@app.get("/api/jobs")
+def jobs_status():
+    st = runner.status()
+    st["env"] = {k: bool(os.getenv(k)) for k in ("DATAFORSEO_LOGIN", "DATAFORSEO_PASSWORD", "COMPANIES_HOUSE_API_KEY")}
+    return st
+
+
+@app.post("/api/jobs/{name}")
+def jobs_start(name: str, params: dict = Body(default={})):
+    if name not in runner.JOBS:
+        raise HTTPException(404, "unknown job")
+    if not runner.start(name, params):
+        raise HTTPException(409, "a job is already running")
+    return {"ok": True}
 
 
 app.mount("/static", StaticFiles(directory=str(WEB)), name="static")

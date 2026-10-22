@@ -16,6 +16,7 @@
     <button data-view="table">Trigger table</button>
     <button data-view="targets">Targets</button>
     <button data-view="subjects">Subjects</button>
+    <button data-view="jobs">Jobs</button>
   </nav>
   <div class="meta" id="meta"></div>
 </header>
@@ -76,6 +77,28 @@
     <div class="split">
       <table id="subjects"><thead><tr><th>Name</th><th>Company</th><th>C</th><th>Cohort</th><th>Inputs</th><th>Pages</th><th>Checked</th></tr></thead><tbody></tbody></table>
       <div class="pane" id="subject-detail"><p class="hint">Click a subject.</p></div>
+    </div>
+  </section>
+  <section id="view-jobs" class="view">
+    <div class="split">
+      <div class="pane">
+        <h2>Run things</h2>
+        <p class="hint">One job runs at a time. Keys: <span id="env-status"></span></p>
+        <div class="jobs">
+          <div class="job"><h4>1. Get US subjects (Florida)</h4><p class="hint">Downloads the state's free register file and imports a random sample of officers appointed in the last year. First run takes a few minutes.</p>
+            <label>How many <input id="fl-n" type="number" value="500" style="width:5em"></label> <button data-job="florida_fetch">Fetch and import</button></div>
+          <div class="job"><h4>2. Get UK subjects (Companies House)</h4><p class="hint">Needs COMPANIES_HOUSE_API_KEY. Imports directors of recently incorporated companies.</p>
+            <label>Companies <input id="ch-n" type="number" value="200" style="width:5em"></label> <button data-job="companies_house">Import</button></div>
+          <div class="job"><h4>3. Check presence</h4><p class="hint">Needs DataForSEO. Checks subjects not checked in the last 30 days against all target sites. Full mode is about 35 SERP calls per subject; cheap mode is 2.</p>
+            <label>Subjects <input id="ck-limit" type="number" value="50" style="width:5em"></label>
+            <label><input id="ck-cheap" type="checkbox"> cheap mode</label>
+            <button data-job="check">Run checks</button></div>
+          <div class="job"><h4>4. Analyse</h4><p class="hint">Rebuilds the trigger table, lags and rank stats from everything checked so far. Run after checks.</p><button data-job="analyse">Analyse</button></div>
+          <div class="job"><h4>Sample data</h4><p class="hint">Synthetic subjects so the views have something to show. Delete once real data is in.</p>
+            <button data-job="seed_sample">Seed sample</button> <button data-job="delete_cohort" data-cohort="sample" class="danger">Delete sample</button></div>
+        </div>
+      </div>
+      <div class="pane"><h2>Log</h2><p class="hint" id="job-running"></p><pre id="job-log"></pre><h3>History</h3><div id="job-history" class="hint"></div></div>
     </div>
   </section>
 </main>

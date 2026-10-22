@@ -42,3 +42,9 @@ button.primary{margin-top:12px;background:var(--accent);color:#fff;border:0;padd
 .node.target.people_search circle{fill:var(--warn)}
 .node.dim{opacity:.15}
 .link{stroke:var(--muted);stroke-opacity:.35;fill:none}.link.dim{stroke-opacity:.04}.link.hi{stroke:var(--in);stroke-opacity:.9}
+
+.jobs .job{border-top:1px solid var(--line);padding:10px 0}.jobs .job h4{margin:0 0 4px;font-size:14px}
+.jobs button{font:inherit;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+.jobs button.danger{color:var(--warn)}
+#job-log{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px;font:12px/1.4 var(--mono);height:50vh;overflow:auto;white-space:pre-wrap}
+.ok{color:var(--in)}.bad{color:var(--warn)}
