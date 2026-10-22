@@ -3,7 +3,7 @@
 One job at a time. Each job writes to an in-memory log the UI polls.
 Jobs: florida_fetch, companies_house, check, analyse, seed_sample, delete_cohort.
 """
-import threading, traceback, os, io, zipfile, tempfile
+import threading, traceback, os, io, re, zipfile, tempfile
 from datetime import datetime
 from pathlib import Path
 from .db import SessionLocal
@@ -80,33 +80,44 @@ def _find_remote(s, preferred: str, depth: int = 4) -> str:
 
 
 def job_florida_fetch(p):
-    """Download Florida's quarterly cordata.zip over SFTP and import a random sample."""
+    """Download Florida's recent daily corporate files over SFTP and import a random sample of officers.
+    Daily files (~1 MB each, one per working day) live in /Public/doc/cor/ as MMDDYYc.dat.
+    The quarterly cordata.zip is 1.8 GB and too large for this instance."""
     import paramiko
     from .collectors import florida
     n = int(p.get("n", 500))
+    days = int(p.get("days", 60))
     host, user, pw = "sftp.floridados.gov", "Public", "PubAccess1845!"   # published by the Division of Corporations
-    remote = p.get("remote", "/doc/quarterly/cor/cordata.zip")
-    tmp = Path(tempfile.gettempdir()) / "cordata.zip"
-    if tmp.exists() and (datetime.utcnow().timestamp() - tmp.stat().st_mtime) < 7 * 86400 and not p.get("refresh"):
-        log(f"using cached {tmp}")
-    else:
-        log(f"connecting to {host}")
-        t = paramiko.Transport((host, 22)); t.connect(username=user, password=pw)
-        s = paramiko.SFTPClient.from_transport(t)
-        remote = _find_remote(s, remote)
-        size = s.stat(remote).st_size
-        log(f"downloading {remote} ({size/1e6:.0f} MB)")
-        done = [0]
-        def cb(x, y):
-            if x - done[0] > 50e6:
-                done[0] = x; log(f"  {x/1e6:.0f} MB")
-        s.get(remote, str(tmp), callback=cb)
-        t.close()
-        log("download complete")
-    log("parsing and sampling officers filed in the last year")
+    cache = Path(tempfile.gettempdir()) / "fl_daily"; cache.mkdir(exist_ok=True)
+    log(f"connecting to {host}")
+    t = paramiko.Transport((host, 22)); t.connect(username=user, password=pw)
+    s = paramiko.SFTPClient.from_transport(t)
+    folder = "/Public/doc/cor"
+    files = [a.filename for a in s.listdir_attr(folder)
+             if re.fullmatch(r"\d{6}c\.dat", a.filename, re.I)]
+    def key(f):  # MMDDYY -> sortable YYMMDD
+        return f[4:6] + f[0:2] + f[2:4]
+    files = sorted(files, key=key)[-days:]
+    log(f"{len(files)} daily files, {files[0] if files else ''} .. {files[-1] if files else ''}")
+    paths = []
+    for i, f in enumerate(files, 1):
+        local = cache / f
+        if not local.exists():
+            with s.open(f"{folder}/{f}", "rb") as rf, open(local, "wb") as wf:
+                while True:
+                    chunk = rf.read(65536)
+                    if not chunk:
+                        break
+                    wf.write(chunk)
+        paths.append(local)
+        if i % 10 == 0:
+            log(f"  {i}/{len(files)} downloaded")
+    t.close()
+    log("parsing officers")
+    total = 0
     with SessionLocal() as db:
-        n_created = florida.collect(db, str(tmp), n_subjects=n)
-    log(f"imported {n_created} Florida officers")
+        total = florida.collect_many(db, [str(x) for x in paths], n_subjects=n)
+    log(f"imported {total} Florida officers")
 
 
 def job_companies_house(p):

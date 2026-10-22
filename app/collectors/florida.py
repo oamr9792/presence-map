@@ -99,15 +99,20 @@ def probe(path: str, n: int = 3):
 
 def collect(db: Session, path: str, n_subjects: int = 500, filed_within_days: int = 365,
             seed: int | None = None) -> int:
+    return collect_many(db, [path], n_subjects, filed_within_days, seed)
+
+
+def collect_many(db: Session, paths: list[str], n_subjects: int = 500, filed_within_days: int = 365,
+                 seed: int | None = None) -> int:
     rng = random.Random(seed)
     created = 0
     cutoff = datetime.utcnow().timestamp() - filed_within_days * 86400
     candidates = []
-    for line in _lines(path):
+    for line in (l for pth in paths for l in _lines(pth)):
         if len(line) < OFFICER_START:
             continue
         r = parse_record(line)
-        if r["status"] not in ACTIVE:
+        if r["status"] and r["status"] not in ACTIVE:
             continue
         try:
             fd = datetime.strptime(r["file_date"], "%m%d%Y")
