@@ -85,8 +85,9 @@
         <h2>Run things</h2>
         <p class="hint">One job runs at a time. Keys: <span id="env-status"></span></p>
         <div class="jobs">
-          <div class="job"><h4>1. Get US subjects (Florida)</h4><p class="hint">Downloads the state's free daily filing files (about 1 MB each) and imports a random sample of the officers named in them.</p>
-            <label>Days of filings <input id="fl-days" type="number" value="60" style="width:5em"></label>
+          <div class="job"><h4>1. Get US subjects (Florida)</h4><p class="hint">Downloads a sample of the state's free daily filing files (about 1 MB each) spread across the last few years, plus the most recent weeks, and imports a random sample of the officers named in them. Older appointments show the finished picture; recent ones are for measuring lag.</p>
+            <label>Years back <input id="fl-years" type="number" value="4" style="width:4em"></label>
+            <label>Files <input id="fl-files" type="number" value="200" style="width:5em"></label>
             <label>How many <input id="fl-n" type="number" value="500" style="width:5em"></label> <button data-job="florida_fetch">Fetch and import</button></div>
           <div class="job"><h4>2. Get UK subjects (Companies House)</h4><p class="hint">Needs COMPANIES_HOUSE_API_KEY. Imports directors of recently incorporated companies.</p>
             <label>Companies <input id="ch-n" type="number" value="200" style="width:5em"></label> <button data-job="companies_house">Import</button></div>

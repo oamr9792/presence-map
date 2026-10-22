@@ -86,7 +86,9 @@ def job_florida_fetch(p):
     import paramiko
     from .collectors import florida
     n = int(p.get("n", 500))
-    days = int(p.get("days", 60))
+    years = float(p.get("years", 4))      # sample daily files spread across this many years
+    n_files = int(p.get("files", 200))    # how many daily files to pull in total
+    recent_days = 40                      # always include the most recent files for the lag cohort
     host, user, pw = "sftp.floridados.gov", "Public", "PubAccess1845!"   # published by the Division of Corporations
     cache = Path(tempfile.gettempdir()) / "fl_daily"; cache.mkdir(exist_ok=True)
     log(f"connecting to {host}")
@@ -97,8 +99,18 @@ def job_florida_fetch(p):
              if re.fullmatch(r"\d{6}c\.dat", a.filename, re.I)]
     def key(f):  # MMDDYY -> sortable YYMMDD
         return f[4:6] + f[0:2] + f[2:4]
-    files = sorted(files, key=key)[-days:]
-    log(f"{len(files)} daily files, {files[0] if files else ''} .. {files[-1] if files else ''}")
+    files = sorted(files, key=key)
+    cutoff = datetime.utcnow().timestamp() - years * 365 * 86400
+    def fdate(f):
+        return datetime.strptime(f[:6], "%m%d%y")
+    pool = [f for f in files if fdate(f).timestamp() >= cutoff]
+    recent = pool[-recent_days:]
+    older = pool[:-recent_days]
+    import random as _r
+    rng = _r.Random()
+    picked = recent + rng.sample(older, min(len(older), max(0, n_files - len(recent))))
+    files = sorted(picked, key=key)
+    log(f"{len(pool)} daily files in the last {years:g} years; using {len(files)} ({files[0] if files else ''} .. {files[-1] if files else ''})")
     paths = []
     for i, f in enumerate(files, 1):
         local = cache / f
@@ -116,7 +128,7 @@ def job_florida_fetch(p):
     log("parsing officers")
     total = 0
     with SessionLocal() as db:
-        total = florida.collect_many(db, [str(x) for x in paths], n_subjects=n)
+        total = florida.collect_many(db, [str(x) for x in paths], n_subjects=n, filed_within_days=int(years * 365) + 30)
     log(f"imported {total} Florida officers")
 
 

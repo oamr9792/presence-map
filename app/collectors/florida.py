@@ -138,7 +138,8 @@ def collect_many(db: Session, paths: list[str], n_subjects: int = 500, filed_wit
                        title=TITLE_MAP.get(o["title"], o["title"] or "Officer"),
                        cohort="florida", source_ref=ref,
                        meta={"cor_number": r["cor_number"], "filing_type": r["filing_type"],
-                             "file_date": fd.date().isoformat(), "city": o["city"], "state": o["state"]})
+                             "file_date": fd.date().isoformat(), "city": o["city"], "state": o["state"],
+                             "age_days": int((datetime.utcnow() - fd).days)})
         db.add(subj); db.flush()
         db.add(Input(subject_id=subj.id, type_key="us_officer_filing", present=True, effective_at=fd,
                      url=f"https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResults?inquiryType=EntityName&searchTerm={r['cor_name']}"))

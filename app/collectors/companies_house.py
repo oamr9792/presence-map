@@ -32,7 +32,7 @@ def _person_name(officer: dict) -> str:
     return n.title()
 
 
-def collect(db: Session, n_companies: int = 200, incorporated_within_days: int = 365,
+def collect(db: Session, n_companies: int = 200, incorporated_within_days: int = 4 * 365,
             seed: int | None = None) -> int:
     """Returns number of subjects created."""
     rng = random.Random(seed)
@@ -71,7 +71,8 @@ def collect(db: Session, n_companies: int = 200, incorporated_within_days: int =
                                cohort="companies_house", source_ref=ref,
                                meta={"company_number": num, "sic": comp.get("sic_codes"),
                                      "incorporated": comp.get("date_of_creation"),
-                                     "appointed_on": off.get("appointed_on")})
+                                     "appointed_on": off.get("appointed_on"),
+                                     "age_days": (datetime.utcnow() - datetime.fromisoformat(off["appointed_on"])).days if off.get("appointed_on") else None})
                 db.add(subj); db.flush()
                 eff = off.get("appointed_on")
                 db.add(Input(subject_id=subj.id, type_key="ch_appointment", present=True,
