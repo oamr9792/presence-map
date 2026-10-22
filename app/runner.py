@@ -142,25 +142,37 @@ def job_companies_house(p):
 
 
 def job_check(p):
+    """Check subjects due, several in parallel (each subject gets its own DB session)."""
     from .checkers.presence import check_subject
     from datetime import timedelta
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     if not os.getenv("DATAFORSEO_LOGIN"):
         raise RuntimeError("DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD are not set")
     limit, recheck, per_target = int(p.get("limit", 50)), int(p.get("recheck_days", 30)), not p.get("cheap")
+    workers = int(p.get("workers", 6))
     cohort = p.get("cohort") or None
     with SessionLocal() as db:
         q = db.query(Subject)
         if cohort:
             q = q.filter_by(cohort=cohort)
         cutoff = datetime.utcnow() - timedelta(days=recheck)
-        due = [s for s in q.all() if not s.checks or max(c.checked_at for c in s.checks) < cutoff][:limit]
-        log(f"{len(due)} subjects due ({'full' if per_target else 'cheap'} mode)")
-        for i, s in enumerate(due, 1):
+        due_ids = [s.id for s in q.all() if not s.checks or max(c.checked_at for c in s.checks) < cutoff][:limit]
+    log(f"{len(due_ids)} subjects due ({'full' if per_target else 'cheap'} mode, {workers} in parallel)")
+
+    def one(sid):
+        with SessionLocal() as db:
+            s = db.get(Subject, sid)
             try:
                 found = check_subject(db, s, per_target=per_target)
-                log(f"[{i}/{len(due)}] {s.full_name}: {len(found)} pages")
+                return f"{s.full_name}: {len(found)} pages"
             except Exception as e:
-                db.rollback(); log(f"[{i}/{len(due)}] {s.full_name}: ERROR {e}")
+                db.rollback(); return f"{s.full_name}: ERROR {e}"
+
+    done = 0
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        for fut in as_completed([ex.submit(one, sid) for sid in due_ids]):
+            done += 1
+            log(f"[{done}/{len(due_ids)}] {fut.result()}")
 
 
 def job_analyse(p):

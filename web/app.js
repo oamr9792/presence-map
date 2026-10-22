@@ -190,7 +190,7 @@ $$("#view-jobs button[data-job]").forEach(b => b.onclick = async () => {
   const job = b.dataset.job; let params = {};
   if (job === "florida_fetch") params = { n: +$("#fl-n").value, years: +$("#fl-years").value, files: +$("#fl-files").value };
   if (job === "companies_house") params = { n: +$("#ch-n").value };
-  if (job === "check") params = { limit: +$("#ck-limit").value, cheap: $("#ck-cheap").checked };
+  if (job === "check") params = { limit: +$("#ck-limit").value, cheap: $("#ck-cheap").checked, workers: +$("#ck-workers").value };
   if (job === "delete_cohort") { params = { cohort: b.dataset.cohort }; if (!confirm(`Delete cohort ${b.dataset.cohort}?`)) return; }
   const r = await fetch(`/api/jobs/${job}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) });
   if (!r.ok) alert((await r.json()).detail);
