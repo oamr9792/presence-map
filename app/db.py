@@ -9,8 +9,11 @@ from .models import Base, Target, InputType
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/presence.db")
-if DATABASE_URL.startswith("postgres://"):           # Render gives postgres://, SQLAlchemy wants postgresql://
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# Render gives postgres://; pin the psycopg2 driver explicitly (SQLAlchemy 2.1 defaults to psycopg v3)
+for prefix in ("postgres://", "postgresql://"):
+    if DATABASE_URL.startswith(prefix):
+        DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len(prefix):]
+        break
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
