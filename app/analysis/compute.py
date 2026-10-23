@@ -27,16 +27,38 @@ def first_seen(db: Session) -> dict[tuple[int, str], datetime]:
     return {(s, t): d for s, t, d in rows}
 
 
-def subject_inputs(db: Session) -> dict[int, dict[str, Input]]:
+def subject_inputs(db: Session, pres: dict[int, dict[str, Check]] | None = None) -> dict[int, dict[str, Input]]:
+    """Inputs per subject. A present row always wins over an absent one (an absent row is
+    only a default written when nothing was found). Pages on targets that are themselves
+    inputs (LinkedIn, Crunchbase, The Org) imply the input, so derive them from the checks.
+    company_domain is derived from the subject record."""
     out: dict[int, dict[str, Input]] = defaultdict(dict)
     for i in db.query(Input).order_by(Input.observed_at).all():
-        out[i.subject_id][i.type_key] = i
+        cur = out[i.subject_id].get(i.type_key)
+        if cur is None or (i.present and not cur.present):
+            out[i.subject_id][i.type_key] = i
+    also = {t.key: t.also_input for t in db.query(Target) if t.also_input}
+    if pres is not None:
+        for sid, targets in pres.items():
+            for tk, c in targets.items():
+                ik = also.get(tk)
+                if ik and c.present:
+                    cur = out[sid].get(ik)
+                    if cur is None or not cur.present:
+                        out[sid][ik] = Input(subject_id=sid, type_key=ik, present=True, url=c.url,
+                                             observed_at=c.checked_at)
+                elif ik and tk in targets and ik not in out[sid]:
+                    out[sid][ik] = Input(subject_id=sid, type_key=ik, present=False)
+    for s in db.query(Subject):
+        if "company_domain" not in out[s.id] or not out[s.id]["company_domain"].present:
+            out[s.id]["company_domain"] = Input(subject_id=s.id, type_key="company_domain",
+                                                present=bool(s.company_domain))
     return out
 
 
 def run(db: Session, min_n: int = 3, log=lambda m: None) -> dict:
     pres = latest_presence(db)
-    inputs = subject_inputs(db)
+    inputs = subject_inputs(db, pres)
     fs = first_seen(db)
     tgt_rows = db.query(Target).filter_by(active=True).all()
     targets = [t.key for t in tgt_rows]

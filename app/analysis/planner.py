@@ -7,14 +7,15 @@ repeat. Output is an ordered plan with expected pages and lags.
 """
 from sqlalchemy.orm import Session
 from ..models import Subject, Input, Check, Edge, TargetStat, InputType, Target
-from .compute import latest_presence
+from .compute import latest_presence, subject_inputs
 
 
 def plan(db: Session, subject_id: int, max_steps: int = 8, max_noise: int = 3) -> dict:
     subj = db.get(Subject, subject_id)
-    pres = latest_presence(db).get(subject_id, {})
+    all_pres = latest_presence(db)
+    pres = all_pres.get(subject_id, {})
     have_pages = {k for k, c in pres.items() if c.present}
-    have_inputs = {i.type_key for i in db.query(Input).filter_by(subject_id=subject_id, present=True)}
+    have_inputs = {k for k, i in subject_inputs(db, all_pres).get(subject_id, {}).items() if i.present}
     itypes = {i.key: i for i in db.query(InputType)}
     targets = {t.key: t for t in db.query(Target).filter_by(active=True)}
     stats = {s.target_key: s for s in db.query(TargetStat)}

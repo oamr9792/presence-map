@@ -107,7 +107,8 @@ def check_subject(db: Session, subj: Subject, targets: list[Target] | None = Non
             found[t.key] = (hit, None)
 
     # 3. inputs we know are absent (so analysis has explicit negatives)
-    for key in ("linkedin", "team_page"):
+    db.flush()
+    for key in ("linkedin", "team_page", "crunchbase_page", "theorg_page"):
         if not db.query(Input).filter_by(subject_id=subj.id, type_key=key).first():
             db.add(Input(subject_id=subj.id, type_key=key, present=False))
     db.commit()
