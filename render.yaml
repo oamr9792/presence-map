@@ -18,21 +18,6 @@ services:
         sync: false
       - key: OPENCORPORATES_API_TOKEN
         sync: false
-  - type: cron
-    name: presence-map-check
-    runtime: python
-    schedule: "0 3 * * 1"   # weekly, Monday 03:00 UTC
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m app.jobs check --limit 100 --recheck-days 90 --no-per-target && python -m app.jobs analyse
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: presence-map-db
-          property: connectionString
-      - key: DATAFORSEO_LOGIN
-        sync: false
-      - key: DATAFORSEO_PASSWORD
-        sync: false
 databases:
   - name: presence-map-db
     plan: basic-256mb

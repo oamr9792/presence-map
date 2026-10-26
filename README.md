@@ -80,8 +80,9 @@ people only; invented people pollute the brokers and the data.
 
 ## Render
 
-`render.yaml` defines a web service, a Postgres database, and a nightly cron
-that runs `check` then `analyse`. Set the API keys in the Render dashboard.
+`render.yaml` defines a web service and a Postgres database. There is no
+scheduled job; checks run only from the Jobs tab. Set the API keys in the
+Render dashboard.
 
 ## Adding a target or input
 
