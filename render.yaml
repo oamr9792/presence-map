@@ -21,9 +21,9 @@ services:
   - type: cron
     name: presence-map-check
     runtime: python
-    schedule: "0 3 * * *"
+    schedule: "0 3 * * 1"   # weekly, Monday 03:00 UTC
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m app.jobs check --limit 100 --recheck-days 30 && python -m app.jobs analyse
+    startCommand: python -m app.jobs check --limit 100 --recheck-days 90 --no-per-target && python -m app.jobs analyse
     envVars:
       - key: DATABASE_URL
         fromDatabase:

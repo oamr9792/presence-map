@@ -91,7 +91,7 @@
             <label>How many <input id="fl-n" type="number" value="500" style="width:5em"></label> <button data-job="florida_fetch">Fetch and import</button></div>
           <div class="job"><h4>2. Get UK subjects (Companies House)</h4><p class="hint">Needs COMPANIES_HOUSE_API_KEY. Imports directors of recently incorporated companies.</p>
             <label>Companies <input id="ch-n" type="number" value="200" style="width:5em"></label> <button data-job="companies_house">Import</button></div>
-          <div class="job"><h4>3. Check presence</h4><p class="hint">Needs DataForSEO. Checks subjects not checked in the last 30 days against all target sites. Full mode is about 35 SERP calls per subject; cheap mode is 2. Runs several subjects at once; the nightly job on Render also checks 100 subjects at 03:00 UTC.</p>
+          <div class="job"><h4>3. Check presence</h4><p class="hint">Needs DataForSEO. Checks subjects not checked in the last 30 days against all target sites. Full mode is about 35 SERP calls per subject; cheap mode is 2. Runs several subjects at once; the scheduled job on Render also checks 100 subjects in cheap mode every Monday at 03:00 UTC.</p>
             <label>Subjects <input id="ck-limit" type="number" value="50" style="width:5em"></label>
             <label><input id="ck-cheap" type="checkbox"> cheap mode</label>
             <label>Cohort <select id="ck-cohort"><option value="">all</option><option value="florida">florida (US)</option><option value="companies_house">companies_house (UK)</option><option value="client">client</option></select></label>
